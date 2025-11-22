@@ -75,7 +75,17 @@ The Futarchy DEX API is a CoinGecko-compatible DEX API that automatically discov
 https://your-api-domain.com
 ```
 
-All API requests should be made to this base URL.
+All API requests should be made to this base URL. Replace `your-api-domain.com` with your actual API domain.
+
+## Available Endpoints
+
+The API provides three main endpoints:
+
+- **`GET /`** - API information and available endpoints
+- **`GET /api/tickers`** - All DAO tickers with pricing and volume information
+- **`GET /health`** - Health check endpoint for monitoring
+
+See the [API Reference](/api-reference/overview) for detailed documentation on each endpoint.
 
 ## Response Format
 

@@ -55,6 +55,20 @@ description: 'Get started with the Futarchy DEX API in under 5 minutes'
 
 Once the server is running, test the API:
 
+### Check API Information
+
+First, verify the API is running and get information about available endpoints:
+
+```bash
+curl http://localhost:3000/
+```
+
+This returns API information including version, available endpoints, and DEX configuration.
+
+### Get Ticker Data
+
+Retrieve all DAO tickers with pricing and volume information:
+
 <CodeGroup>
 
 ```bash cURL

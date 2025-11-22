@@ -7,6 +7,20 @@ description: 'Configure your Futarchy DEX API instance'
 
 All configuration is managed through environment variables in your `.env` file.
 
+### Quick Reference
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `SOLANA_RPC_URL` | Solana RPC endpoint URL | `https://api.mainnet-beta.solana.com` | Yes |
+| `SOLANA_WS_URL` | Solana WebSocket endpoint URL | `wss://api.mainnet-beta.solana.com` | No |
+| `PORT` | Server port | `3000` | No |
+| `NODE_ENV` | Node.js environment | `production` | No |
+| `DEX_FORK_TYPE` | DEX fork type identifier | `Custom` | Yes |
+| `FACTORY_ADDRESS` | Factory program address | (empty) | Yes |
+| `ROUTER_ADDRESS` | Router program address | (empty) | Yes |
+| `PROTOCOL_FEE_RATE` | Protocol fee rate for volume calculation | `0.0025` (0.25%) | No |
+| `EXCLUDED_DAOS` | Comma-separated list of DAO addresses to exclude | (empty) | No |
+
 ### Solana Configuration
 
 <ParamField path="SOLANA_RPC_URL" type="string" default="https://api.mainnet-beta.solana.com" required>

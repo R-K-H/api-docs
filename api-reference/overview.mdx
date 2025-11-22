@@ -1,86 +1,174 @@
 ---
 title: 'API Overview'
-description: 'Overview of the Futarchy AMM API'
+description: 'Overview of the Futarchy CoinGecko-compatible DEX API'
 ---
 
-## Architecture
+## What is This API?
 
-The Futarchy AMM consists of two main components:
+The Futarchy CoinGecko DEX API is a CoinGecko-compatible API that automatically discovers and aggregates all DAOs from the Futarchy protocol, providing real-time pricing and trading information.
 
-1. **Rust Program**: On-chain program handling swaps, liquidity, and arbitrage
-2. **TypeScript SDK**: Client library for building applications
+<Info>
+  This API is fully compatible with CoinGecko's DEX API specification, making it easy to integrate with price aggregators and trading platforms.
+</Info>
 
-## Fee Structure
+## Base URL
 
-<CardGroup cols={3}>
-  <Card title="LP Fee" icon="users">
-    0.25% (25 BPS)
+```
+https://your-api-domain.com
+```
+
+All API requests should be made to this base URL. Replace `your-api-domain.com` with your actual API domain.
+
+## Available Endpoints
+
+<CardGroup cols={2}>
+  <Card title="GET /" icon="home" href="/api-reference/overview#root-endpoint">
+    API information and available endpoints
   </Card>
-  <Card title="Protocol Fee" icon="building">
-    0.25% (25 BPS)
+  <Card title="GET /api/tickers" icon="chart-line" href="/api-reference/tickers">
+    All DAO tickers with pricing and volume
   </Card>
-  <Card title="Total Fee" icon="calculator">
-    0.5% (50 BPS)
+  <Card title="GET /health" icon="heart" href="/api-reference/overview#health-endpoint">
+    Health check endpoint
   </Card>
 </CardGroup>
 
-## Constants
+## Root Endpoint
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `LP_TAKER_FEE_BPS` | 25 | Fee to liquidity providers (0.25%) |
-| `PROTOCOL_TAKER_FEE_BPS` | 25 | Fee to protocol (0.25%) |
-| `TAKER_FEE_BPS` | 50 | Total taker fee (0.5%) |
-| `MAX_BPS` | 10,000 | Basis points denominator |
-| `PRICE_SCALE` | 1e12 | Price scaling factor |
+**Endpoint:** `GET /`
 
-## Program IDs
+Returns API information and available endpoints.
 
-<CodeGroup>
-```typescript Mainnet
-export const FUTARCHY_PROGRAM_ID = new PublicKey("...");
-export const CONDITIONAL_VAULT_PROGRAM_ID = new PublicKey("...");
-export const MAINNET_USDC = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+**Response:**
+
+```json
+{
+  "name": "Futarchy AMM - CoinGecko API",
+  "version": "1.0.0",
+  "documentation": "https://docs.coingecko.com/reference/exchanges-list",
+  "endpoints": {
+    "tickers": "/api/tickers - Returns all DAO tickers",
+    "health": "/health"
+  },
+  "dex": {
+    "fork_type": "Custom",
+    "factory_address": "YOUR_FACTORY_PROGRAM_ID",
+    "router_address": "YOUR_ROUTER_PROGRAM_ID"
+  },
+  "note": "This API automatically discovers and aggregates all DAOs from the Futarchy protocol"
+}
 ```
-```typescript Devnet
-export const FUTARCHY_PROGRAM_ID = new PublicKey("...");
-export const CONDITIONAL_VAULT_PROGRAM_ID = new PublicKey("...");
-export const DEVNET_USDC = new PublicKey("...");
+
+**Example Request:**
+
+```bash
+curl https://your-api-domain.com/
 ```
 
-</CodeGroup>
+## Health Endpoint
 
-## Key Concepts
+**Endpoint:** `GET /health`
+
+Health check endpoint for monitoring API status.
+
+**Response:**
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "uptime": 3600.5
+}
+```
+
+**Response Fields:**
+
+<ResponseField name="status" type="string" required>
+  Health status of the API. Always `"healthy"` when the endpoint responds successfully.
+</ResponseField>
+
+<ResponseField name="timestamp" type="string" required>
+  Current server timestamp in ISO 8601 format.
+</ResponseField>
+
+<ResponseField name="uptime" type="number" required>
+  Server uptime in seconds.
+</ResponseField>
+
+**Example Request:**
+
+```bash
+curl https://your-api-domain.com/health
+```
+
+<Tip>
+  Use this endpoint for automated health monitoring. Set up checks every 1-5 minutes to detect issues early.
+</Tip>
+
+## Key Features
 
 <AccordionGroup>
-  <Accordion title="Constant Product Formula">
-    The AMM uses the constant product formula from Uniswap V1: `x * y = k`
-    
-    Where:
-    - `x` = base token reserves
-    - `y` = quote token reserves
-    - `k` = constant product (must never decrease)
+  <Accordion icon="magnifying-glass" title="Automatic DAO Discovery">
+    The API automatically discovers all DAOs from the Futarchy protocol without manual configuration. No need to maintain a list of DAOs - they're discovered dynamically from the blockchain.
   </Accordion>
 
-  <Accordion title="Automatic Arbitrage">
-    In futarchy mode, swaps trigger automatic arbitrage between spot and conditional markets, maximizing returns for traders.
+  <Accordion icon="coins" title="Real-Time Pricing">
+    Prices are calculated from spot pool reserves in real-time, accounting for token decimal differences to ensure accuracy.
   </Accordion>
 
-  <Accordion title="TWAP Oracle">
-    Time-weighted average price oracle with manipulation resistance through:
-    - Maximum observation change per update
-    - Initial observation validation
-    - Configurable start delay
+  <Accordion icon="chart-bar" title="Volume Tracking">
+    Trading volumes are calculated from accumulated protocol fees, providing accurate volume metrics that reflect actual trading activity.
   </Accordion>
 
-  <Accordion title="Conditional Markets">
-    Each proposal creates pass and fail markets for:
-    - Pass base tokens (pMETA)
-    - Pass quote tokens (pUSDC)
-    - Fail base tokens (fMETA)
-    - Fail quote tokens (fUSDC)
+  <Accordion icon="droplet" title="Liquidity Metrics">
+    Comprehensive liquidity information for all pools, calculated in USD for easy comparison.
+  </Accordion>
+
+  <Accordion icon="bolt" title="High Performance">
+    Built with Bun for exceptional performance, featuring intelligent caching (10s for tickers, 100s for metadata) and rate limiting.
+  </Accordion>
+
+  <Accordion icon="shield" title="CoinGecko Compatible">
+    Fully compatible with CoinGecko's DEX API specification, making integration seamless with existing tools and platforms.
   </Accordion>
 </AccordionGroup>
+
+## Rate Limiting
+
+The API implements rate limiting to ensure fair usage:
+
+- **60 requests per minute** per IP address
+- Returns `429 Too Many Requests` when limit is exceeded
+- Rate limits reset at the start of each minute window
+
+## Caching
+
+The API uses intelligent caching to balance freshness with performance:
+
+- **Tickers**: 10 seconds TTL
+- **Token Metadata**: 100 seconds TTL (longer cache for static data)
+
+## Data Sources
+
+All data comes from on-chain sources:
+
+1. **Solana Blockchain** - Pool reserves, DAO accounts, protocol fees
+2. **Metaplex Token Metadata** - Token symbols, names, and metadata
+3. **Spot Pools Only** - Prices calculated from spot pools, not conditional markets
+
+<Warning>
+  Prices are only calculated from spot pools, not conditional/futarchy pools, to ensure spot market accuracy.
+</Warning>
+
+## Response Format
+
+All endpoints return JSON responses. Error responses follow a consistent format:
+
+```json
+{
+  "error": "Error message describing what went wrong"
+}
+```
 
 ## Next Steps
 
@@ -96,5 +184,8 @@ export const DEVNET_USDC = new PublicKey("...");
   </Card>
   <Card title="Configuration" icon="gear" href="/configuration">
     Configure your API instance
+  </Card>
+  <Card title="Error Handling" icon="exclamation-triangle" href="/advanced/error-handling">
+    Learn how to handle API errors
   </Card>
 </CardGroup>

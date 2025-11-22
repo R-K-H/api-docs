@@ -203,11 +203,14 @@ func main() {
 
 ## Caching
 
+The API implements intelligent caching to optimize performance:
+
 <Note>
-  Ticker data is cached for **10 seconds** to balance freshness with performance.
+  - **Ticker data**: Cached for **10 seconds** to balance freshness with performance
+  - **Token metadata**: Cached for **100 seconds** (longer cache for static data like symbols and names)
 </Note>
 
-Subsequent requests within the cache window return cached data instantly.
+Subsequent requests within the cache window return cached data instantly, reducing load on the Solana RPC and improving response times.
 
 ## Filtering
 
