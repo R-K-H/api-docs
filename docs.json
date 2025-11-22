@@ -5,11 +5,14 @@
       "dark": "/images/logo.png",
       "light": "/images/logo.png"
     },
-    "favicon": "/favicon.svg",
+    "favicon": "/images/metadao.svg",
     "colors": {
-      "primary": "#0D9373",
-      "light": "#07C983",
-      "dark": "#0D9373"
+      "primary": "#FF6868",
+      "light": "#FF6868",
+      "dark": "#FF6868"
+    },
+    "fonts": {
+      "family": "Geist"
     },
     "topbarLinks": [
       {
