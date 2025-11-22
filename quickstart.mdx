@@ -1,0 +1,94 @@
+---
+title: 'Quickstart'
+description: 'Start trading with Futarchy AMM in under 5 minutes'
+---
+
+## Setup your environment
+
+Get started by installing the required dependencies.
+
+<CodeGroup>
+```bash npm
+npm install @coral-xyz/anchor @solana/web3.js @solana/spl-token bn.js
+```
+```bash yarn
+yarn add @coral-xyz/anchor @solana/web3.js @solana/spl-token bn.js
+```
+```bash pnpm
+pnpm add @coral-xyz/anchor @solana/web3.js @solana/spl-token bn.js
+```
+
+</CodeGroup>
+
+## Initialize the client
+
+Create a FutarchyClient instance to interact with the protocol.
+```typescript
+import { AnchorProvider } from "@coral-xyz/anchor";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { FutarchyClient } from "./FutarchyClient";
+
+// Setup connection
+const connection = new Connection("https://api.mainnet-beta.solana.com");
+const wallet = Keypair.fromSecretKey(/* your secret key */);
+const provider = new AnchorProvider(connection, wallet, {});
+
+// Create client
+const client = FutarchyClient.createClient({ provider });
+```
+
+## Execute your first swap
+
+Buy tokens in the spot market.
+```typescript
+import BN from "bn.js";
+
+const dao = new PublicKey("YourDaoPublicKey");
+const metaMint = new PublicKey("MetaTokenMint");
+
+// Buy 10 META with USDC
+const tx = await client.spotSwapIx({
+  dao,
+  baseMint: metaMint,
+  swapType: "buy",
+  inputAmount: new BN(10_000_000), // 10 USDC (6 decimals)
+  minOutputAmount: new BN(9_800_000_000), // Min 9.8 META (9 decimals, 2% slippage)
+}).rpc();
+
+console.log("Transaction:", tx);
+```
+
+<Check>You've successfully executed your first swap!</Check>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Learn about Spot Swaps"
+    icon="arrow-right-arrow-left"
+    href="/guides/spot-swaps"
+  >
+    Deep dive into spot market trading
+  </Card>
+  <Card
+    title="Conditional Swaps"
+    icon="shuffle"
+    href="/guides/conditional-swaps"
+  >
+    Trade in prediction markets
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/typescript-sdk"
+  >
+    Explore all available methods
+  </Card>
+  <Card
+    title="Best Practices"
+    icon="shield-check"
+    href="/guides/best-practices"
+  >
+    Production deployment tips
+  </Card>
+</CardGroup>

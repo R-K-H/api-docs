@@ -1,0 +1,83 @@
+---
+title: 'API Overview'
+description: 'Overview of the Futarchy AMM API'
+---
+
+## Architecture
+
+The Futarchy AMM consists of two main components:
+
+1. **Rust Program**: On-chain program handling swaps, liquidity, and arbitrage
+2. **TypeScript SDK**: Client library for building applications
+
+## Fee Structure
+
+<CardGroup cols={3}>
+  <Card title="LP Fee" icon="users">
+    0.25% (25 BPS)
+  </Card>
+  <Card title="Protocol Fee" icon="building">
+    0.25% (25 BPS)
+  </Card>
+  <Card title="Total Fee" icon="calculator">
+    0.5% (50 BPS)
+  </Card>
+</CardGroup>
+
+## Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `LP_TAKER_FEE_BPS` | 25 | Fee to liquidity providers (0.25%) |
+| `PROTOCOL_TAKER_FEE_BPS` | 25 | Fee to protocol (0.25%) |
+| `TAKER_FEE_BPS` | 50 | Total taker fee (0.5%) |
+| `MAX_BPS` | 10,000 | Basis points denominator |
+| `PRICE_SCALE` | 1e12 | Price scaling factor |
+
+## Program IDs
+
+<CodeGroup>
+```typescript Mainnet
+export const FUTARCHY_PROGRAM_ID = new PublicKey("...");
+export const CONDITIONAL_VAULT_PROGRAM_ID = new PublicKey("...");
+export const MAINNET_USDC = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+```
+```typescript Devnet
+export const FUTARCHY_PROGRAM_ID = new PublicKey("...");
+export const CONDITIONAL_VAULT_PROGRAM_ID = new PublicKey("...");
+export const DEVNET_USDC = new PublicKey("...");
+```
+
+</CodeGroup>
+
+## Key Concepts
+
+<AccordionGroup>
+  <Accordion title="Constant Product Formula">
+    The AMM uses the constant product formula from Uniswap V1: `x * y = k`
+    
+    Where:
+    - `x` = base token reserves
+    - `y` = quote token reserves
+    - `k` = constant product (must never decrease)
+  </Accordion>
+
+  <Accordion title="Automatic Arbitrage">
+    In futarchy mode, swaps trigger automatic arbitrage between spot and conditional markets, maximizing returns for traders.
+  </Accordion>
+
+  <Accordion title="TWAP Oracle">
+    Time-weighted average price oracle with manipulation resistance through:
+    - Maximum observation change per update
+    - Initial observation validation
+    - Configurable start delay
+  </Accordion>
+
+  <Accordion title="Conditional Markets">
+    Each proposal creates pass and fail markets for:
+    - Pass base tokens (pMETA)
+    - Pass quote tokens (pUSDC)
+    - Fail base tokens (fMETA)
+    - Fail quote tokens (fUSDC)
+  </Accordion>
+</AccordionGroup>

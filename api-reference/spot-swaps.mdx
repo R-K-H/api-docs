@@ -1,0 +1,189 @@
+---
+title: 'Spot Swaps'
+description: 'Execute swaps in the spot market'
+icon: 'arrow-right-arrow-left'
+---
+
+## Overview
+
+Spot swaps allow you to trade base tokens (e.g., META) for quote tokens (e.g., USDC) and vice versa using a constant product AMM.
+
+## Basic Usage
+
+<Steps>
+  <Step title="Initialize Client">
+    Create a FutarchyClient instance
+```typescript
+    const client = FutarchyClient.createClient({ provider });
+```
+  </Step>
+  
+  <Step title="Prepare Swap Parameters">
+    Define your swap details
+```typescript
+    const dao = new PublicKey("YourDaoPublicKey");
+    const baseMint = new PublicKey("MetaTokenMint");
+    const inputAmount = new BN(10_000_000); // 10 USDC
+```
+  </Step>
+  
+  <Step title="Execute Swap">
+    Call the swap instruction
+```typescript
+    const tx = await client.spotSwapIx({
+      dao,
+      baseMint,
+      swapType: "buy",
+      inputAmount,
+      minOutputAmount: new BN(9_800_000_000), // 2% slippage
+    }).rpc();
+```
+  </Step>
+</Steps>
+
+## Buying Tokens
+
+Buy base tokens using quote tokens:
+```typescript
+const buyTx = await client.spotSwapIx({
+  dao,
+  baseMint: metaMint,
+  quoteMint: usdcMint,
+  swapType: "buy",
+  inputAmount: new BN(100_000_000), // 100 USDC (6 decimals)
+  minOutputAmount: new BN(98_000_000_000), // Min 98 META (9 decimals)
+}).rpc();
+```
+
+## Selling Tokens
+
+Sell base tokens for quote tokens:
+```typescript
+const sellTx = await client.spotSwapIx({
+  dao,
+  baseMint: metaMint,
+  swapType: "sell",
+  inputAmount: new BN(50_000_000_000), // 50 META
+  minOutputAmount: new BN(49_000_000), // Min 49 USDC
+}).rpc();
+```
+
+## Slippage Protection
+
+<Warning>Always set `minOutputAmount` to protect against unfavorable price movements</Warning>
+
+Calculate slippage tolerance:
+```typescript
+const expectedOutput = new BN(100_000_000_000);
+const slippageBps = 100; // 1%
+const minOutput = expectedOutput
+  .mul(new BN(10000 - slippageBps))
+  .div(new BN(10000));
+
+await client.spotSwapIx({
+  dao,
+  baseMint,
+  swapType: "buy",
+  inputAmount: new BN(100_000_000),
+  minOutputAmount: minOutput,
+}).rpc();
+```
+
+## Handling Token Decimals
+
+<Info>Always account for token decimals when specifying amounts</Info>
+```typescript
+// Common token decimals
+const META_DECIMALS = 9;
+const USDC_DECIMALS = 6;
+
+// Convert UI amounts to token amounts
+const uiAmount = 10; // 10 USDC
+const tokenAmount = uiAmount * Math.pow(10, USDC_DECIMALS);
+
+// Convert token amounts to UI amounts
+const tokenAmount = new BN(10_000_000);
+const uiAmount = tokenAmount.toNumber() / Math.pow(10, USDC_DECIMALS);
+```
+
+## Error Handling
+```typescript
+try {
+  await client.spotSwapIx({
+    dao,
+    baseMint,
+    swapType: "buy",
+    inputAmount: new BN(100_000_000),
+    minOutputAmount: new BN(95_000_000_000),
+  }).rpc();
+} catch (error) {
+  if (error.message.includes("AmmInvariantViolated")) {
+    console.error("Swap would violate AMM invariant");
+  } else if (error.message.includes("InvalidReserves")) {
+    console.error("Pool has insufficient reserves");
+  } else if (error.message.includes("slippage")) {
+    console.error("Slippage tolerance exceeded");
+  } else {
+    console.error("Swap failed:", error);
+  }
+}
+```
+
+## Complete Example
+```typescript
+import { AnchorProvider, BN } from "@coral-xyz/anchor";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { FutarchyClient } from "./FutarchyClient";
+
+async function executeSpotSwap() {
+  // Setup
+  const connection = new Connection("https://api.mainnet-beta.solana.com");
+  const wallet = Keypair.fromSecretKey(/* ... */);
+  const provider = new AnchorProvider(connection, wallet, {});
+  const client = FutarchyClient.createClient({ provider });
+  
+  // Parameters
+  const dao = new PublicKey("YourDaoPublicKey");
+  const metaMint = new PublicKey("MetaTokenMint");
+  
+  // Fetch current DAO state
+  const daoData = await client.getDao(dao);
+  console.log("Current reserves:", {
+    base: daoData.amm.state.spot.baseReserves,
+    quote: daoData.amm.state.spot.quoteReserves,
+  });
+  
+  // Calculate expected output (simplified)
+  // In production, use proper AMM math
+  const inputAmount = new BN(10_000_000); // 10 USDC
+  const slippage = 0.02; // 2%
+  
+  // Execute swap
+  const tx = await client.spotSwapIx({
+    dao,
+    baseMint: metaMint,
+    swapType: "buy",
+    inputAmount,
+    minOutputAmount: new BN(0), // Calculate based on reserves
+  }).rpc();
+  
+  console.log("Swap successful:", tx);
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Always Set Slippage" icon="shield-check">
+    Protect against price changes with `minOutputAmount`
+  </Card>
+  <Card title="Check Reserves" icon="chart-line">
+    Query DAO state before large swaps
+  </Card>
+  <Card title="Handle Errors" icon="triangle-exclamation">
+    Implement proper error handling and retries
+  </Card>
+  <Card title="Test on Devnet" icon="flask">
+    Always test with small amounts first
+  </Card>
+</CardGroup>
