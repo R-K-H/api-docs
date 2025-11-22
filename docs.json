@@ -1,5 +1,6 @@
 {
-    "name": "Futarchy DEX API",
+  "theme": "willow",  
+  "name": "Futarchy DEX API",
     "logo": {
       "dark": "/images/logo.png",
       "light": "/images/logo.png"
