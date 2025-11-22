@@ -40,20 +40,34 @@
       }
     ],
     "navigation": {
-      "Get Started": [
-        "introduction",
-        "quickstart",
-        "configuration"
-      ],
-      "Core Concepts": [
-        "concepts/pricing-methodology"
-      ],
-      "API Reference": [
-        "api-reference/overview",
-        "api-reference/tickers"
-      ],
-      "Advanced": [
-        "advanced/error-handling"
+      "groups": [
+        {
+          "group": "Get Started",
+          "pages": [
+            "introduction",
+            "quickstart",
+            "configuration"
+          ]
+        },
+        {
+          "group": "Core Concepts",
+          "pages": [
+            "concepts/pricing-methodology"
+          ]
+        },
+        {
+          "group": "API Reference",
+          "pages": [
+            "api-reference/overview",
+            "api-reference/tickers"
+          ]
+        },
+        {
+          "group": "Advanced",
+          "pages": [
+            "advanced/error-handling"
+          ]
+        }
       ]
     },
     "footerSocials": {
