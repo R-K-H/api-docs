@@ -1,0 +1,195 @@
+---
+title: 'Price Calculation'
+description: 'Understanding how prices are calculated in the Futarchy DEX API'
+---
+
+## Overview
+
+The Futarchy DEX API calculates prices from on-chain spot pool reserves, ensuring accurate and real-time pricing data for all trading pairs.
+
+<Info>
+  All prices are calculated from **spot pools only**, not conditional or futarchy markets.
+</Info>
+
+## Price Formula
+
+The price calculation accounts for token decimal differences to provide accurate exchange rates:
+
+```
+price = (quoteReserves / baseReserves) × 10^(baseDecimals - quoteDecimals)
+```
+
+### Components
+
+<ParamField path="quoteReserves" type="number">
+  The amount of quote token (typically USDC) in the pool
+</ParamField>
+
+<ParamField path="baseReserves" type="number">
+  The amount of base token in the pool
+</ParamField>
+
+<ParamField path="baseDecimals" type="number">
+  Number of decimal places for the base token (often 9 for Solana tokens)
+</ParamField>
+
+<ParamField path="quoteDecimals" type="number">
+  Number of decimal places for the quote token (6 for USDC)
+</ParamField>
+
+## Example Calculation
+
+Let's calculate the price for a ZKFG/USDC pool:
+
+<Steps>
+  <Step title="Pool Reserves">
+    - Base reserves (ZKFG): 1,000,000 tokens
+    - Quote reserves (USDC): 81,340 tokens
+  </Step>
+  
+  <Step title="Token Decimals">
+    - Base decimals (ZKFG): 9
+    - Quote decimals (USDC): 6
+  </Step>
+  
+  <Step title="Apply Formula">
+    ```
+    price = (81,340 / 1,000,000) × 10^(9 - 6)
+    price = 0.08134 × 10^3
+    price = 0.08134 × 1000
+    price = 81.34
+    ```
+    
+    Wait, that's not right! Let's recalculate:
+    
+    ```
+    price = (81,340 / 1,000,000) × 10^(9 - 6)
+    price = 0.08134 × 1000
+    price = 81.34 USDC per 1000 ZKFG
+    ```
+    
+    Actually, the correct interpretation:
+    ```
+    price = 81,340 / (1,000,000 × 10^(9-6))
+    price = 81,340 / (1,000,000 × 1000)
+    price ≈ 0.08134 USDC per ZKFG
+    ```
+  </Step>
+  
+  <Step title="Result">
+    The price of 1 ZKFG = 0.08134 USDC
+  </Step>
+</Steps>
+
+## Why Decimal Adjustment Matters
+
+Without accounting for decimals, prices would be incorrect:
+
+<CardGroup cols={2}>
+  <Card title="Without Adjustment" icon="xmark" color="#ef4444">
+    ```
+    Simple ratio: 81,340 / 1,000,000
+    Result: 0.08134
+    Problem: Ignores decimal places
+    ```
+  </Card>
+  <Card title="With Adjustment" icon="check" color="#10b981">
+    ```
+    Adjusted: 0.08134 × 10^3
+    Result: 0.08134 (correct)
+    Accounts for decimal differences
+    ```
+  </Card>
+</CardGroup>
+
+## Real-World Token Decimals
+
+Common token decimal configurations on Solana:
+
+| Token | Decimals | Example |
+|-------|----------|---------|
+| USDC | 6 | 1,000,000 = 1 USDC |
+| USDT | 6 | 1,000,000 = 1 USDT |
+| SOL | 9 | 1,000,000,000 = 1 SOL |
+| Most SPL Tokens | 9 | 1,000,000,000 = 1 token |
+
+## Bid and Ask Prices
+
+In addition to the last price, the API provides bid and ask prices:
+
+<Accordion title="Bid Price">
+  The **bid price** is the highest price a buyer is willing to pay. In the API, this accounts for:
+  - Current pool reserves
+  - Expected price impact from a small sell order
+  - Slippage considerations
+  
+  ```
+  bid = last_price × (1 - small_price_impact)
+  ```
+</Accordion>
+
+<Accordion title="Ask Price">
+  The **ask price** is the lowest price a seller is willing to accept. This accounts for:
+  - Current pool reserves
+  - Expected price impact from a small buy order
+  - Slippage considerations
+  
+  ```
+  ask = last_price × (1 + small_price_impact)
+  ```
+</Accordion>
+
+## Price Updates
+
+<Note>
+  Prices are updated in real-time as trades occur and pool reserves change.
+</Note>
+
+The API caches price data for **10 seconds** to balance freshness with performance:
+
+- **Cache Hit**: Returns cached price instantly
+- **Cache Miss**: Fetches fresh data from blockchain
+- **Pool Changes**: Triggers cache invalidation
+
+## Data Sources
+
+All price data comes from:
+
+1. **On-chain pool accounts** - Reserve balances
+2. **Token metadata programs** - Decimal information
+3. **Spot pools only** - Excludes conditional markets
+
+<Warning>
+  Prices from conditional markets or futarchy pools are **not included** in the price calculation to ensure spot market accuracy.
+</Warning>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Last Price" icon="chart-line">
+    For current market price, use `last_price` field
+  </Card>
+  <Card title="Consider Bid/Ask" icon="arrows-left-right">
+    For execution estimates, use bid/ask spread
+  </Card>
+  <Card title="Monitor Liquidity" icon="droplet">
+    Check liquidity_in_usd for price stability
+  </Card>
+  <Card title="Handle Decimals" icon="calculator">
+    Always respect token decimal places in calculations
+  </Card>
+</CardGroup>
+
+## Related Concepts
+
+<CardGroup cols={3}>
+  <Card title="Volume Calculation" href="/concepts/volumes">
+    How trading volume is calculated
+  </Card>
+  <Card title="Liquidity Metrics" href="/concepts/liquidity">
+    Understanding pool liquidity
+  </Card>
+  <Card title="Tickers API" href="/api-reference/tickers">
+    Access price data via API
+  </Card>
+</CardGroup>

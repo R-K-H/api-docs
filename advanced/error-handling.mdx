@@ -1,0 +1,378 @@
+---
+title: 'Error Handling'
+description: 'Understanding and handling API errors'
+---
+
+## Error Response Format
+
+All API errors follow a consistent JSON format:
+
+```json
+{
+  "error": "Error message describing what went wrong"
+}
+```
+
+The HTTP status code indicates the error category, and the error message provides specific details.
+
+## HTTP Status Codes
+
+### Success Codes
+
+<ResponseField name="200" type="OK">
+  Request successful, data returned
+</ResponseField>
+
+### Client Error Codes
+
+<ResponseField name="400" type="Bad Request">
+  The request was malformed or contains invalid parameters
+  
+  **Common causes:**
+  - Missing required query parameters
+  - Invalid ticker_id format
+  - Malformed request body
+</ResponseField>
+
+<ResponseField name="404" type="Not Found">
+  The requested resource does not exist
+  
+  **Common causes:**
+  - Invalid endpoint path
+  - Ticker not found
+  - DAO does not exist
+</ResponseField>
+
+<ResponseField name="429" type="Too Many Requests">
+  Rate limit exceeded
+  
+  **Details:**
+  - Limit: 60 requests per minute per IP
+  - Reset: Wait until the next minute window
+</ResponseField>
+
+### Server Error Codes
+
+<ResponseField name="500" type="Internal Server Error">
+  An unexpected error occurred on the server
+  
+  **Common causes:**
+  - RPC connection issues
+  - Blockchain data unavailable
+  - Service temporarily down
+</ResponseField>
+
+<ResponseField name="502" type="Bad Gateway">
+  Upstream service (RPC) is unavailable
+</ResponseField>
+
+<ResponseField name="503" type="Service Unavailable">
+  API is temporarily unavailable (maintenance or overload)
+</ResponseField>
+
+## Common Error Scenarios
+
+### Rate Limit Exceeded
+
+When you exceed 60 requests per minute:
+
+```json
+{
+  "error": "Rate limit exceeded. Please try again later."
+}
+```
+
+**Solution:**
+<Steps>
+  <Step title="Implement Retry Logic">
+    Wait 60 seconds before retrying
+  </Step>
+  <Step title="Use Exponential Backoff">
+    Gradually increase wait time between retries
+  </Step>
+  <Step title="Cache Responses">
+    Store frequently accessed data locally
+  </Step>
+</Steps>
+
+**Example Implementation:**
+
+<CodeGroup>
+
+```javascript JavaScript
+async function fetchWithRetry(url, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await fetch(url);
+      
+      if (response.status === 429) {
+        const waitTime = Math.pow(2, i) * 1000; // Exponential backoff
+        console.log(`Rate limited. Waiting ${waitTime}ms...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+}
+
+// Usage
+const tickers = await fetchWithRetry('https://your-api-domain.com/api/tickers');
+```
+
+```python Python
+import time
+import requests
+from typing import Optional, Dict
+
+def fetch_with_retry(url: str, max_retries: int = 3) -> Optional[Dict]:
+    for i in range(max_retries):
+        try:
+            response = requests.get(url)
+            
+            if response.status_code == 429:
+                wait_time = (2 ** i) * 1  # Exponential backoff
+                print(f"Rate limited. Waiting {wait_time}s...")
+                time.sleep(wait_time)
+                continue
+            
+            response.raise_for_status()
+            return response.json()
+            
+        except requests.exceptions.RequestException as e:
+            if i == max_retries - 1:
+                raise e
+            time.sleep(i + 1)
+    
+    return None
+
+# Usage
+tickers = fetch_with_retry('https://your-api-domain.com/api/tickers')
+```
+
+</CodeGroup>
+
+### Ticker Not Found
+
+When requesting a specific ticker that doesn't exist:
+
+```json
+{
+  "error": "Ticker not found: INVALID_MINT_ADDRESS"
+}
+```
+
+**Solutions:**
+- Verify the ticker_id format: `{BASE_MINT}_{QUOTE_MINT}`
+- Ensure both mint addresses are valid Solana PublicKeys
+- Check if the DAO is excluded via `EXCLUDED_DAOS`
+- Verify the DAO has active pools with reserves
+
+### RPC Connection Issues
+
+When the Solana RPC is unavailable:
+
+```json
+{
+  "error": "Failed to fetch DAO data from blockchain"
+}
+```
+
+**Solutions:**
+<CardGroup cols={2}>
+  <Card title="Check RPC Status" icon="signal">
+    Verify your RPC provider is operational
+  </Card>
+  <Card title="Use Fallback RPC" icon="rotate">
+    Configure multiple RPC endpoints
+  </Card>
+  <Card title="Upgrade RPC Tier" icon="arrow-up">
+    Use a premium RPC provider
+  </Card>
+  <Card title="Retry Request" icon="arrows-rotate">
+    Implement automatic retry logic
+  </Card>
+</CardGroup>
+
+### Invalid Configuration
+
+When required environment variables are missing:
+
+```json
+{
+  "error": "FACTORY_ADDRESS not configured"
+}
+```
+
+**Solution:** Ensure all required environment variables are set in your `.env` file:
+```env
+FACTORY_ADDRESS=YOUR_FACTORY_PROGRAM_ID
+ROUTER_ADDRESS=YOUR_ROUTER_PROGRAM_ID
+```
+
+## Error Handling Best Practices
+
+<AccordionGroup>
+  <Accordion icon="shield" title="Always Handle Errors">
+    Never assume requests will succeed. Wrap all API calls in try-catch blocks.
+    
+    ```javascript
+    try {
+      const data = await fetch('/api/tickers').then(r => r.json());
+    } catch (error) {
+      console.error('API request failed:', error);
+      // Handle error appropriately
+    }
+    ```
+  </Accordion>
+  
+  <Accordion icon="clock" title="Implement Timeouts">
+    Set reasonable timeouts to prevent hanging requests.
+    
+    ```javascript
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    
+    try {
+      const response = await fetch('/api/tickers', { 
+        signal: controller.signal 
+      });
+      clearTimeout(timeout);
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.error('Request timed out');
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion icon="rotate" title="Use Retry Logic">
+    Implement exponential backoff for transient errors.
+    
+    See code examples above for implementation details.
+  </Accordion>
+  
+  <Accordion icon="database" title="Cache Responses">
+    Cache successful responses to reduce API load and improve resilience.
+    
+    ```javascript
+    const cache = new Map();
+    const CACHE_TTL = 10000; // 10 seconds
+    
+    async function getCached(url) {
+      const cached = cache.get(url);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+      }
+      
+      const data = await fetch(url).then(r => r.json());
+      cache.set(url, { data, timestamp: Date.now() });
+      return data;
+    }
+    ```
+  </Accordion>
+  
+  <Accordion icon="bell" title="Log Errors">
+    Log all errors for debugging and monitoring.
+    
+    ```javascript
+    async function fetchAPI(url) {
+      try {
+        return await fetch(url).then(r => r.json());
+      } catch (error) {
+        console.error({
+          timestamp: new Date().toISOString(),
+          url,
+          error: error.message,
+          stack: error.stack
+        });
+        throw error;
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring API Health
+
+Use the health check endpoint to monitor API status:
+
+```bash
+curl https://your-api-domain.com/health
+```
+
+**Healthy Response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "uptime": 3600.5
+}
+```
+
+<Tip>
+  Set up automated health checks every 1-5 minutes to detect issues early.
+</Tip>
+
+## Getting Support
+
+If you encounter persistent errors:
+
+<CardGroup cols={2}>
+  <Card title="Check Documentation" icon="book" href="/api-reference/introduction">
+    Review API documentation for proper usage
+  </Card>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/yourorg/futarchy-api/issues">
+    Report bugs or request features
+  </Card>
+  <Card title="Discord Support" icon="discord" href="https://discord.gg/yourserver">
+    Get help from the community
+  </Card>
+  <Card title="Status Page" icon="signal">
+    Check system status and incidents
+  </Card>
+</CardGroup>
+
+## Error Response Examples
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "Invalid ticker_id format. Expected: BASE_MINT_QUOTE_MINT"
+}
+```
+
+```json 404 Not Found
+{
+  "error": "Endpoint not found: /api/invalid"
+}
+```
+
+```json 429 Rate Limited
+{
+  "error": "Rate limit exceeded. Please try again later."
+}
+```
+
+```json 500 Server Error
+{
+  "error": "Failed to fetch DAO data from blockchain"
+}
+```
+
+```json 503 Service Unavailable
+{
+  "error": "Service temporarily unavailable. Please try again in a few moments."
+}
+```
+
+</CodeGroup>

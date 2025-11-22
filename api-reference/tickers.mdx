@@ -1,0 +1,244 @@
+---
+title: 'GET /api/tickers'
+description: 'Retrieve all DAO tickers with pricing and volume information'
+api: 'GET /api/tickers'
+---
+
+## Overview
+
+The tickers endpoint returns comprehensive trading information for all DAOs discovered in the Futarchy protocol. This endpoint automatically discovers and aggregates data without requiring manual configuration.
+
+<Info>
+  This endpoint is fully compatible with CoinGecko's DEX API specification.
+</Info>
+
+## Request
+
+```bash
+GET /api/tickers
+```
+
+### No Parameters Required
+
+This endpoint requires no query parameters. It automatically returns all active DAOs with valid pools.
+
+## Response
+
+<ResponseField name="ticker_id" type="string" required>
+  Unique identifier for the trading pair in format `{BASE_MINT}_{QUOTE_MINT}`
+  
+  Example: `"ZKFHiLAfAFMTcDAuCtjNW54VzpERvoe7PBF9mYgmeta_EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"`
+</ResponseField>
+
+<ResponseField name="base_currency" type="string" required>
+  The base token mint address (Solana PublicKey)
+</ResponseField>
+
+<ResponseField name="target_currency" type="string" required>
+  The quote token mint address, typically USDC
+</ResponseField>
+
+<ResponseField name="base_symbol" type="string">
+  The symbol of the base token (e.g., "ZKFG"). May be empty if metadata unavailable.
+</ResponseField>
+
+<ResponseField name="base_name" type="string">
+  The name of the base token. May be empty if metadata unavailable.
+</ResponseField>
+
+<ResponseField name="target_symbol" type="string">
+  The symbol of the quote token (e.g., "USDC")
+</ResponseField>
+
+<ResponseField name="target_name" type="string">
+  The name of the quote token (e.g., "USD Coin")
+</ResponseField>
+
+<ResponseField name="pool_id" type="string" required>
+  The DAO address (Solana PublicKey)
+</ResponseField>
+
+<ResponseField name="last_price" type="string" required>
+  Current price of base token in terms of quote token (quote/base ratio)
+</ResponseField>
+
+<ResponseField name="base_volume" type="string" required>
+  24-hour trading volume in base token, calculated from protocol fees
+</ResponseField>
+
+<ResponseField name="target_volume" type="string" required>
+  24-hour trading volume in quote token, calculated from protocol fees
+</ResponseField>
+
+<ResponseField name="liquidity_in_usd" type="string" required>
+  Total pool liquidity in USD
+</ResponseField>
+
+<ResponseField name="bid" type="string" required>
+  Best bid price (accounting for price impact)
+</ResponseField>
+
+<ResponseField name="ask" type="string" required>
+  Best ask price (accounting for price impact)
+</ResponseField>
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl https://your-api-domain.com/api/tickers
+```
+
+```javascript JavaScript
+const response = await fetch('https://your-api-domain.com/api/tickers');
+const tickers = await response.json();
+console.log(tickers);
+```
+
+```python Python
+import requests
+
+response = requests.get('https://your-api-domain.com/api/tickers')
+tickers = response.json()
+print(tickers)
+```
+
+```go Go
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    resp, err := http.Get("https://your-api-domain.com/api/tickers")
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    var tickers []map[string]interface{}
+    json.NewDecoder(resp.Body).Decode(&tickers)
+    fmt.Println(tickers)
+}
+```
+
+</CodeGroup>
+
+## Example Response
+
+```json
+[
+  {
+    "ticker_id": "ZKFHiLAfAFMTcDAuCtjNW54VzpERvoe7PBF9mYgmeta_EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "base_currency": "ZKFHiLAfAFMTcDAuCtjNW54VzpERvoe7PBF9mYgmeta",
+    "target_currency": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "base_symbol": "ZKFG",
+    "base_name": "ZKFG Token",
+    "target_symbol": "USDC",
+    "target_name": "USD Coin",
+    "pool_id": "5FPGRzY9ArJFwY2Hp2y2eqMzVewyWCBox7esmpuZfCvE",
+    "last_price": "0.081340728222",
+    "base_volume": "30024.81040000",
+    "target_volume": "2441.23456789",
+    "liquidity_in_usd": "180138.45",
+    "bid": "0.080934024581",
+    "ask": "0.081747431863"
+  },
+  {
+    "ticker_id": "ANOTHER_TOKEN_MINT_ADDRESS_EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "base_currency": "ANOTHER_TOKEN_MINT_ADDRESS",
+    "target_currency": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "base_symbol": "ABC",
+    "base_name": "ABC Token",
+    "target_symbol": "USDC",
+    "target_name": "USD Coin",
+    "pool_id": "ANOTHER_DAO_ADDRESS",
+    "last_price": "1.234567",
+    "base_volume": "15000.00",
+    "target_volume": "18520.35",
+    "liquidity_in_usd": "95000.00",
+    "bid": "1.220000",
+    "ask": "1.250000"
+  }
+]
+```
+
+## Data Characteristics
+
+<AccordionGroup>
+  <Accordion icon="calculator" title="Price Calculation">
+    Prices are calculated from spot pool reserves only (not conditional/futarchy pools).
+    
+    **Formula:** `price = (quoteReserves / baseReserves) * 10^(baseDecimals - quoteDecimals)`
+    
+    This ensures accurate pricing regardless of token decimal differences.
+  </Accordion>
+  
+  <Accordion icon="chart-bar" title="Volume Calculation">
+    Volume is derived from accumulated protocol fees, providing accurate trading activity.
+    
+    **Formula:** `volume = protocolFees / feeRate`
+    
+    Uses the `PROTOCOL_FEE_RATE` configured in your environment (default: 0.25%).
+  </Accordion>
+  
+  <Accordion icon="droplet" title="Liquidity Calculation">
+    Liquidity is calculated as double the quote reserves (for stablecoin pairs).
+    
+    **Formula:** `liquidity = 2 * quoteReserves`
+    
+    Assumes symmetric liquidity for stablecoin-denominated pools.
+  </Accordion>
+  
+  <Accordion icon="arrows-left-right" title="Bid/Ask Spread">
+    Bid and ask prices account for price impact from trading.
+    
+    These values represent realistic execution prices for small trades.
+  </Accordion>
+</AccordionGroup>
+
+## Caching
+
+<Note>
+  Ticker data is cached for **10 seconds** to balance freshness with performance.
+</Note>
+
+Subsequent requests within the cache window return cached data instantly.
+
+## Filtering
+
+<Warning>
+  DAOs can be excluded from results by adding their addresses to the `EXCLUDED_DAOS` environment variable.
+</Warning>
+
+Only DAOs with:
+- Valid pool reserves (non-zero)
+- Accessible on-chain data
+- Not in the exclusion list
+
+will appear in the response.
+
+## Rate Limiting
+
+This endpoint is subject to the global rate limit of **60 requests per minute** per IP address.
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Price Aggregators" icon="chart-mixed">
+    Integrate with price tracking platforms like CoinGecko
+  </Card>
+  <Card title="Trading Dashboards" icon="gauge">
+    Display real-time market data for all DAOs
+  </Card>
+  <Card title="Market Analysis" icon="magnifying-glass-chart">
+    Analyze trading volumes and liquidity across DAOs
+  </Card>
+  <Card title="Arbitrage Bots" icon="robot">
+    Monitor prices for arbitrage opportunities
+  </Card>
+</CardGroup>

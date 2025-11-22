@@ -1,0 +1,198 @@
+---
+title: 'Configuration'
+description: 'Configure your Futarchy DEX API instance'
+---
+
+## Environment Variables
+
+All configuration is managed through environment variables in your `.env` file.
+
+### Solana Configuration
+
+<ParamField path="SOLANA_RPC_URL" type="string" default="https://api.mainnet-beta.solana.com" required>
+  The Solana RPC endpoint URL for fetching blockchain data.
+  
+  **Recommendations:**
+  - Use a dedicated RPC provider (e.g., Helius, QuickNode) for production
+  - Public endpoints may be rate-limited
+  
+  ```env
+  SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+  ```
+</ParamField>
+
+<ParamField path="SOLANA_WS_URL" type="string" default="wss://api.mainnet-beta.solana.com">
+  The Solana WebSocket endpoint URL for real-time updates.
+  
+  ```env
+  SOLANA_WS_URL=wss://api.mainnet-beta.solana.com
+  ```
+</ParamField>
+
+### Server Configuration
+
+<ParamField path="PORT" type="number" default="3000">
+  The port on which the API server will listen.
+  
+  ```env
+  PORT=3000
+  ```
+</ParamField>
+
+<ParamField path="NODE_ENV" type="string" default="production">
+  The Node.js environment. Options: `development`, `production`, `test`
+  
+  ```env
+  NODE_ENV=production
+  ```
+</ParamField>
+
+### DEX Configuration
+
+<ParamField path="DEX_FORK_TYPE" type="string" default="Custom" required>
+  The DEX fork type identifier for CoinGecko compatibility.
+  
+  **Supported Types:**
+  - `Custom` (recommended for Futarchy)
+  - `Uniswap V2`, `Uniswap V3`, `Uniswap V4`
+  - `Raydium`, `Raydium CLMM`
+  - `Orca`
+  - See [full list](/configuration#supported-dex-forks)
+  
+  ```env
+  DEX_FORK_TYPE=Custom
+  ```
+</ParamField>
+
+<ParamField path="FACTORY_ADDRESS" type="string" required>
+  The factory program address that creates and manages DAO instances.
+  
+  <Warning>
+    This must be a valid Solana program ID (PublicKey)
+  </Warning>
+  
+  ```env
+  FACTORY_ADDRESS=YOUR_FACTORY_PROGRAM_ID
+  ```
+</ParamField>
+
+<ParamField path="ROUTER_ADDRESS" type="string" required>
+  The router program address for executing swaps.
+  
+  ```env
+  ROUTER_ADDRESS=YOUR_ROUTER_PROGRAM_ID
+  ```
+</ParamField>
+
+### Protocol Configuration
+
+<ParamField path="PROTOCOL_FEE_RATE" type="number" default="0.0025">
+  The protocol fee rate used for volume calculation. Default is 0.0025 (0.25%).
+  
+  **Formula:** `volume = protocolFees / feeRate`
+  
+  ```env
+  PROTOCOL_FEE_RATE=0.0025
+  ```
+</ParamField>
+
+<ParamField path="EXCLUDED_DAOS" type="string">
+  Comma-separated list of DAO addresses to exclude from the API responses.
+  
+  ```env
+  EXCLUDED_DAOS=DAO1_PUBLIC_KEY,DAO2_PUBLIC_KEY,DAO3_PUBLIC_KEY
+  ```
+</ParamField>
+
+## Supported DEX Forks
+
+The following DEX fork types are supported for CoinGecko compatibility:
+
+<AccordionGroup>
+  <Accordion title="AMM Protocols">
+    - Uniswap V2, V3, V4
+    - Raydium
+    - Raydium CLMM
+    - Orca
+    - Balancer V2, V3
+    - Curve
+  </Accordion>
+  
+  <Accordion title="Concentrated Liquidity">
+    - Algebra
+    - Algebra Integral
+    - Camelot V3
+    - Cetus
+    - Iziswap
+    - Kyberswap
+    - Kyberswap Elastic
+    - Quickswap V3
+    - Maverick V2
+  </Accordion>
+  
+  <Accordion title="Other Protocols">
+    - Solidly V2, V3
+    - Traderjoe V2
+    - Velocore V2
+    - Ston.fi, Ston.fi V2
+    - Surge Protocol
+    - Dedust
+    - Ekubo
+    - Jediswap
+    - And more...
+  </Accordion>
+</AccordionGroup>
+
+## Example Configuration
+
+Here's a complete example `.env` file:
+
+```env
+# Solana Configuration
+SOLANA_RPC_URL=https://rpc.helius.xyz/?api-key=YOUR_API_KEY
+SOLANA_WS_URL=wss://rpc.helius.xyz/?api-key=YOUR_API_KEY
+
+# Server Configuration
+PORT=3000
+NODE_ENV=production
+
+# DEX Configuration
+DEX_FORK_TYPE=Custom
+FACTORY_ADDRESS=FACTgvmECoA8e8Y4h3cKfQcr45Rthxsix92YUJz1DiBk
+ROUTER_ADDRESS=RouTSKvxjyPNWvDCQkBq3cDPZcqEW3ZQRzDCJvxTBhQ
+
+# Protocol Configuration
+PROTOCOL_FEE_RATE=0.0025
+
+# Optional: Exclude specific DAOs
+EXCLUDED_DAOS=11111111111111111111111111111111
+```
+
+## Validation
+
+<Tip>
+  The API validates all configuration on startup and will log warnings or errors for invalid settings.
+</Tip>
+
+On startup, check the logs for:
+- ✅ RPC connection successful
+- ✅ Factory address valid
+- ✅ Router address valid
+- ⚠️ Any configuration warnings
+
+## Production Recommendations
+
+<CardGroup cols={2}>
+  <Card title="Use Premium RPC" icon="bolt">
+    Premium RPC providers offer higher rate limits and better reliability
+  </Card>
+  <Card title="Set Appropriate Fees" icon="percent">
+    Ensure PROTOCOL_FEE_RATE matches your actual protocol fees
+  </Card>
+  <Card title="Monitor Performance" icon="chart-line">
+    Use health check endpoint to monitor API status
+  </Card>
+  <Card title="Secure Your Endpoints" icon="shield">
+    Consider adding authentication for production deployments
+  </Card>
+</CardGroup>

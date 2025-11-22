@@ -1,77 +1,107 @@
 ---
 title: Introduction
-description: 'Welcome to the Futarchy AMM documentation'
+description: 'Welcome to the Futarchy DEX API - A CoinGecko-compatible API for the Futarchy protocol'
 ---
 
 <img
   className="block dark:hidden"
-  src="/images/hero-light.png"
+  src="/images/hero-light.svg"
   alt="Hero Light"
 />
 <img
   className="hidden dark:block"
-  src="/images/hero-dark.png"
+  src="/images/hero-dark.svg"
   alt="Hero Dark"
 />
 
-## What is Futarchy AMM?
+## What is Futarchy DEX API?
 
-Futarchy AMM is an automated market maker implementation for MetaDAO that enables futarchic governance through prediction markets.
+The Futarchy DEX API is a CoinGecko-compatible DEX API that automatically discovers and aggregates all DAOs from the Futarchy protocol, providing real-time pricing and trading information.
 
 <CardGroup cols={2}>
   <Card
-    title="Spot Swaps"
-    icon="arrow-right-arrow-left"
-    href="/guides/spot-swaps"
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
   >
-    Trade tokens in the spot market with automatic arbitrage
+    Get started with the API in minutes
   </Card>
   <Card
-    title="Conditional Swaps"
-    icon="shuffle"
-    href="/guides/conditional-swaps"
-  >
-    Trade in pass/fail prediction markets
-  </Card>
-  <Card
-    title="Rust API"
-    icon="rust"
-    href="/api-reference/rust-program"
-  >
-    Core program implementation and structures
-  </Card>
-  <Card
-    title="TypeScript SDK"
+    title="API Reference"
     icon="code"
-    href="/api-reference/typescript-sdk"
+    href="/api-reference/introduction"
   >
-    Client library for interacting with the protocol
+    Explore all available endpoints
+  </Card>
+  <Card
+    title="Configuration"
+    icon="gear"
+    href="/configuration"
+  >
+    Learn how to configure your API instance
+  </Card>
+  <Card
+    title="Core Concepts"
+    icon="book"
+    href="/concepts/futarchy-protocol"
+  >
+    Understand the Futarchy protocol
   </Card>
 </CardGroup>
 
 ## Key Features
 
-- **Constant Product AMM**: Uniswap V1-style pricing with 0.5% fees
-- **Automatic Arbitrage**: Built-in arbitrage between spot and conditional markets
-- **TWAP Oracle**: Manipulation-resistant price feeds
-- **Conditional Markets**: Pass/fail markets for proposal outcomes
-- **Fee Structure**: 0.25% to LPs + 0.25% to protocol
+<AccordionGroup>
+  <Accordion icon="magnifying-glass" title="Automatic DAO Discovery">
+    The API automatically discovers all DAOs from the Futarchy protocol without manual configuration.
+  </Accordion>
+  <Accordion icon="coins" title="Real-Time Pricing">
+    Get accurate real-time prices calculated from spot pool reserves with support for various token decimals.
+  </Accordion>
+  <Accordion icon="chart-line" title="Volume Tracking">
+    Trading volumes are calculated from protocol fees, providing accurate volume metrics.
+  </Accordion>
+  <Accordion icon="droplet" title="Liquidity Metrics">
+    Access comprehensive liquidity information for all pools in USD.
+  </Accordion>
+  <Accordion icon="bolt" title="High Performance">
+    Built with Bun for exceptional performance with intelligent caching and rate limiting.
+  </Accordion>
+</AccordionGroup>
 
-## Quick Links
+## Base URL
+
+```
+https://your-api-domain.com
+```
+
+All API requests should be made to this base URL.
+
+## Response Format
+
+All endpoints return JSON responses. See the [API Reference](/api-reference/introduction) for detailed response schemas.
+
+## Rate Limits
+
+<Info>
+  The API implements rate limiting of **60 requests per minute** per IP address to ensure fair usage and system stability.
+</Info>
+
+## Getting Help
 
 <CardGroup cols={2}>
   <Card
-    title="Quickstart"
-    icon="play"
-    href="/quickstart"
+    title="GitHub Issues"
+    icon="github"
+    href="https://github.com/metaDAOproject/futarchy-coingecko-api/issues"
   >
-    Get started in 5 minutes
+    Report bugs or request features
   </Card>
   <Card
-    title="GitHub Repository"
-    icon="github"
-    href="https://github.com/metaDAOproject/programs"
+    title="Discord Community"
+    icon="discord"
+    href="https://discord.metadao.fi"
   >
-    View the source code
+    Join our community for support
   </Card>
 </CardGroup>

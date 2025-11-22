@@ -1,94 +1,155 @@
 ---
 title: 'Quickstart'
-description: 'Start trading with Futarchy AMM in under 5 minutes'
+description: 'Get started with the Futarchy DEX API in under 5 minutes'
 ---
 
-## Setup your environment
+## Installation
 
-Get started by installing the required dependencies.
+<Steps>
+  <Step title="Clone the Repository">
+    ```bash
+    git clone https://github.com/metaDAOproject/futarchy-coingecko-api.git
+    cd futarchy-coingecko-api
+    ```
+  </Step>
+  
+  <Step title="Install Dependencies">
+    This project uses Bun for superior performance:
+    ```bash
+    bun install
+    ```
+  </Step>
+  
+  <Step title="Configure Environment">
+    Create a `.env` file based on the example:
+    ```bash
+    cp example.env .env
+    ```
+    
+    Edit `.env` with your configuration:
+    ```env
+    SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+    SOLANA_WS_URL=wss://api.mainnet-beta.solana.com
+    PORT=3000
+    DEX_FORK_TYPE=Custom
+    FACTORY_ADDRESS=YOUR_FACTORY_PROGRAM_ID
+    ROUTER_ADDRESS=YOUR_ROUTER_PROGRAM_ID
+    PROTOCOL_FEE_RATE=0.0025
+    ```
+  </Step>
+  
+  <Step title="Build and Start">
+    ```bash
+    bun run build
+    bun start
+    ```
+    
+    For development with hot reload:
+    ```bash
+    bun run dev
+    ```
+  </Step>
+</Steps>
+
+## Make Your First Request
+
+Once the server is running, test the API:
 
 <CodeGroup>
-```bash npm
-npm install @coral-xyz/anchor @solana/web3.js @solana/spl-token bn.js
+
+```bash cURL
+curl http://localhost:3000/api/tickers
 ```
-```bash yarn
-yarn add @coral-xyz/anchor @solana/web3.js @solana/spl-token bn.js
+
+```javascript JavaScript
+const response = await fetch('http://localhost:3000/api/tickers');
+const data = await response.json();
+console.log(data);
 ```
-```bash pnpm
-pnpm add @coral-xyz/anchor @solana/web3.js @solana/spl-token bn.js
+
+```python Python
+import requests
+
+response = requests.get('http://localhost:3000/api/tickers')
+data = response.json()
+print(data)
 ```
 
 </CodeGroup>
 
-## Initialize the client
+## Example Response
 
-Create a FutarchyClient instance to interact with the protocol.
-```typescript
-import { AnchorProvider } from "@coral-xyz/anchor";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { FutarchyClient } from "./FutarchyClient";
-
-// Setup connection
-const connection = new Connection("https://api.mainnet-beta.solana.com");
-const wallet = Keypair.fromSecretKey(/* your secret key */);
-const provider = new AnchorProvider(connection, wallet, {});
-
-// Create client
-const client = FutarchyClient.createClient({ provider });
+```json
+[
+  {
+    "ticker_id": "ZKFHiLAfAFMTcDAuCtjNW54VzpERvoe7PBF9mYgmeta_EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "base_currency": "ZKFHiLAfAFMTcDAuCtjNW54VzpERvoe7PBF9mYgmeta",
+    "target_currency": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "base_symbol": "ZKFG",
+    "base_name": "ZKFG",
+    "target_symbol": "USDC",
+    "target_name": "USD Coin",
+    "pool_id": "5FPGRzY9ArJFwY2Hp2y2eqMzVewyWCBox7esmpuZfCvE",
+    "last_price": "0.081340728222",
+    "base_volume": "30024.81040000",
+    "target_volume": "2441.23456789",
+    "liquidity_in_usd": "180138.45",
+    "bid": "0.080934024581",
+    "ask": "0.081747431863"
+  }
+]
 ```
 
-## Execute your first swap
+## Health Check
 
-Buy tokens in the spot market.
-```typescript
-import BN from "bn.js";
+Verify the API is running properly:
 
-const dao = new PublicKey("YourDaoPublicKey");
-const metaMint = new PublicKey("MetaTokenMint");
-
-// Buy 10 META with USDC
-const tx = await client.spotSwapIx({
-  dao,
-  baseMint: metaMint,
-  swapType: "buy",
-  inputAmount: new BN(10_000_000), // 10 USDC (6 decimals)
-  minOutputAmount: new BN(9_800_000_000), // Min 9.8 META (9 decimals, 2% slippage)
-}).rpc();
-
-console.log("Transaction:", tx);
+```bash
+curl http://localhost:3000/health
 ```
 
-<Check>You've successfully executed your first swap!</Check>
+Response:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "uptime": 3600.5
+}
+```
+
+<Check>
+  **Success!** Your API is now running and ready to serve data.
+</Check>
 
 ## Next Steps
 
 <CardGroup cols={2}>
   <Card
-    title="Learn about Spot Swaps"
-    icon="arrow-right-arrow-left"
-    href="/guides/spot-swaps"
+    title="Configuration Guide"
+    icon="gear"
+    href="/configuration"
   >
-    Deep dive into spot market trading
-  </Card>
-  <Card
-    title="Conditional Swaps"
-    icon="shuffle"
-    href="/guides/conditional-swaps"
-  >
-    Trade in prediction markets
+    Learn about all configuration options
   </Card>
   <Card
     title="API Reference"
     icon="code"
-    href="/api-reference/typescript-sdk"
+    href="/api-reference/tickers"
   >
-    Explore all available methods
+    Explore the tickers endpoint
   </Card>
   <Card
-    title="Best Practices"
-    icon="shield-check"
-    href="/guides/best-practices"
+    title="Understand Pricing"
+    icon="calculator"
+    href="/concepts/pricing"
   >
-    Production deployment tips
+    Learn how prices are calculated
+  </Card>
+  <Card
+    title="Rate Limiting"
+    icon="gauge"
+    href="/advanced/rate-limiting"
+  >
+    Understand rate limits
   </Card>
 </CardGroup>
