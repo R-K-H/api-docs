@@ -9,11 +9,7 @@
     "colors": {
       "primary": "#0D9373",
       "light": "#07C983",
-      "dark": "#0D9373",
-      "anchors": {
-        "from": "#0D9373",
-        "to": "#07C983"
-      }
+      "dark": "#0D9373"
     },
     "topbarLinks": [
       {
@@ -43,35 +39,23 @@
         "url": "https://discord.metadao.fi"
       }
     ],
-    "navigation": [
-      {
-        "group": "Get Started",
-        "pages": [
-          "introduction",
-          "quickstart",
-          "configuration"
-        ]
-      },
-      {
-        "group": "Core Concepts",
-        "pages": [
-          "concepts/pricing-methodology"
-        ]
-      },
-      {
-        "group": "API Reference",
-        "pages": [
-          "api-reference/overview",
-          "api-reference/tickers"
-        ]
-      },
-      {
-        "group": "Advanced",
-        "pages": [
-          "advanced/error-handling"
-        ]
-      }
-    ],
+    "navigation": {
+      "Get Started": [
+        "introduction",
+        "quickstart",
+        "configuration"
+      ],
+      "Core Concepts": [
+        "concepts/pricing-methodology"
+      ],
+      "API Reference": [
+        "api-reference/overview",
+        "api-reference/tickers"
+      ],
+      "Advanced": [
+        "advanced/error-handling"
+      ]
+    },
     "footerSocials": {
       "github": "https://github.com/metaDAOproject",
       "twitter": "https://twitter.com/metaDAOproject",
