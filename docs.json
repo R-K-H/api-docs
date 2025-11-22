@@ -1,8 +1,8 @@
 {
     "name": "Futarchy DEX API",
     "logo": {
-      "dark": "/logo/dark.svg",
-      "light": "/logo/light.svg"
+      "dark": "/images/logo.png",
+      "light": "/images/logo.png"
     },
     "favicon": "/favicon.svg",
     "colors": {
@@ -54,26 +54,19 @@
       {
         "group": "Core Concepts",
         "pages": [
-          "concepts/futarchy-protocol",
-          "concepts/pricing",
-          "concepts/volumes",
-          "concepts/liquidity"
+          "concepts/pricing-methodology"
         ]
       },
       {
         "group": "API Reference",
         "pages": [
-          "api-reference/introduction",
-          "api-reference/tickers",
-          "api-reference/historical-trades",
-          "api-reference/health"
+          "api-reference/overview",
+          "api-reference/tickers"
         ]
       },
       {
         "group": "Advanced",
         "pages": [
-          "advanced/rate-limiting",
-          "advanced/caching",
           "advanced/error-handling"
         ]
       }
