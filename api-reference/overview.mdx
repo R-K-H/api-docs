@@ -28,10 +28,21 @@ All API requests should be made to this base URL. Replace `your-api-domain.com` 
   <Card title="GET /api/tickers" icon="chart-line" href="/api-reference/tickers">
     All DAO tickers with pricing and volume
   </Card>
+  <Card title="GET /api/supply/:mint" icon="coins" href="/api-reference/supply">
+    Token supply information
+  </Card>
   <Card title="GET /health" icon="heart" href="/api-reference/overview#health-endpoint">
     Health check endpoint
   </Card>
 </CardGroup>
+
+### Supply Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/supply/:mintAddress` | Returns complete supply info (total, circulating, decimals, raw) |
+| `GET /api/supply/:mintAddress/total` | Returns just the total supply |
+| `GET /api/supply/:mintAddress/circulating` | Returns just the circulating supply |
 
 ## Root Endpoint
 
@@ -175,6 +186,9 @@ All endpoints return JSON responses. Error responses follow a consistent format:
 <CardGroup cols={2}>
   <Card title="Tickers Endpoint" icon="code" href="/api-reference/tickers">
     Learn about the tickers API endpoint
+  </Card>
+  <Card title="Supply Endpoint" icon="coins" href="/api-reference/supply">
+    Get token supply information
   </Card>
   <Card title="Pricing Methodology" icon="calculator" href="/concepts/pricing-methodology">
     Understand how prices are calculated

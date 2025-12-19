@@ -68,11 +68,14 @@ All API requests should be made to this base URL. Replace `your-api-domain.com` 
 
 ## Available Endpoints
 
-The API provides three main endpoints:
-
-- **`GET /`** - API information and available endpoints
-- **`GET /api/tickers`** - All DAO tickers with pricing and volume information
-- **`GET /health`** - Health check endpoint for monitoring
+| Endpoint | Description |
+|----------|-------------|
+| `GET /` | API information and available endpoints |
+| `GET /api/tickers` | All DAO tickers with pricing and volume information |
+| `GET /api/supply/:mintAddress` | Complete supply info (total, circulating, decimals, raw) |
+| `GET /api/supply/:mintAddress/total` | Just the total supply |
+| `GET /api/supply/:mintAddress/circulating` | Just the circulating supply |
+| `GET /health` | Health check endpoint for monitoring |
 
 See the [API Reference](/api-reference/overview) for detailed documentation on each endpoint.
 

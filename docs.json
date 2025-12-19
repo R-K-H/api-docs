@@ -62,7 +62,8 @@
           "group": "API Reference",
           "pages": [
             "api-reference/overview",
-            "api-reference/tickers"
+            "api-reference/tickers",
+            "api-reference/supply"
           ]
         },
         {
