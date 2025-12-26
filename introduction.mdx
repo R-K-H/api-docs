@@ -61,10 +61,10 @@ The Futarchy DEX API is a CoinGecko-compatible DEX API that automatically discov
 ## Base URL
 
 ```
-https://your-api-domain.com
+https://market-api.metadao.fi
 ```
 
-All API requests should be made to this base URL. Replace `your-api-domain.com` with your actual API domain.
+All API requests should be made to this base URL.
 
 ## Available Endpoints
 
@@ -72,9 +72,10 @@ All API requests should be made to this base URL. Replace `your-api-domain.com` 
 |----------|-------------|
 | `GET /` | API information and available endpoints |
 | `GET /api/tickers` | All DAO tickers with pricing and volume information |
-| `GET /api/supply/:mintAddress` | Complete supply info (total, circulating, decimals, raw) |
-| `GET /api/supply/:mintAddress/total` | Just the total supply |
-| `GET /api/supply/:mintAddress/circulating` | Just the circulating supply |
+| `GET /api/supply/:mintAddress` | Complete supply breakdown with allocation details |
+| `GET /api/supply/:mintAddress/total` | Total supply only |
+| `GET /api/supply/:mintAddress/circulating` | Circulating supply (excludes team performance package) |
+| `GET /api/volume/aggregate` | Aggregate volume with daily breakdown for all DAO tokens |
 | `GET /health` | Health check endpoint for monitoring |
 
 See the [API Reference](/api-reference/overview) for detailed documentation on each endpoint.

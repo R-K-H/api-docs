@@ -1,20 +1,39 @@
 ---
 title: 'GET /api/supply'
-description: 'Retrieve token supply information for any SPL token'
+description: 'Retrieve complete token supply breakdown with allocation details'
 api: 'GET /api/supply/:mintAddress'
 ---
 
 ## Overview
 
-The supply endpoints provide complete supply information for any SPL token on Solana. This includes total supply, circulating supply, decimals, and raw values.
+The supply endpoints provide complete supply breakdown for launchpad tokens, including detailed allocation information for circulating supply, team performance packages, and liquidity positions.
+
+<Info>
+  For launchpad tokens, circulating supply **excludes** the team performance package but **includes** all liquidity (both FutarchyAMM and Meteora DAMM).
+</Info>
+
+## Supply Breakdown
+
+For launchpad tokens, supply is broken down into the following categories:
+
+| Category | Description | Circulating? |
+|----------|-------------|--------------|
+| **Circulating Supply** | Total supply minus team performance package | ✅ Yes |
+| **Team Performance Package** | Locked tokens allocated to the team (price-based unlock) | ❌ No |
+| **FutarchyAMM Liquidity** | Tokens in the internal FutarchyAMM for spot trading | ✅ Yes |
+| **Meteora LP Liquidity** | Tokens in the external Meteora DAMM pool (POL) | ✅ Yes |
+
+<Warning>
+  Liquidity tokens (both FutarchyAMM and Meteora) **are** counted as circulating supply since they can be traded.
+</Warning>
 
 ## Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /api/supply/:mintAddress` | Returns complete supply info (total, circulating, decimals, raw) |
-| `GET /api/supply/:mintAddress/total` | Returns just the total supply |
-| `GET /api/supply/:mintAddress/circulating` | Returns just the circulating supply |
+| `GET /api/supply/:mintAddress` | Returns complete supply breakdown with allocation details |
+| `GET /api/supply/:mintAddress/total` | Returns total supply only |
+| `GET /api/supply/:mintAddress/circulating` | Returns circulating supply (excludes team performance package) |
 
 ## Full Supply Information
 
@@ -37,7 +56,7 @@ Returns complete supply information for a token.
 </ResponseField>
 
 <ResponseField name="data" type="object" required>
-  Complete supply data object
+  Complete supply data object with allocation breakdown
   
   <Expandable title="data properties">
     <ResponseField name="mint" type="string">
@@ -47,7 +66,16 @@ Returns complete supply information for a token.
       Total token supply (formatted with decimals)
     </ResponseField>
     <ResponseField name="circulatingSupply" type="string">
-      Circulating token supply (formatted with decimals)
+      Circulating token supply - excludes team performance package (formatted with decimals)
+    </ResponseField>
+    <ResponseField name="teamPerformancePackage" type="string">
+      Locked tokens allocated to the team with price-based unlock - NOT circulating
+    </ResponseField>
+    <ResponseField name="futarchyAmmLiquidity" type="string">
+      Tokens in the internal FutarchyAMM for spot trading - IS circulating
+    </ResponseField>
+    <ResponseField name="meteoraLpLiquidity" type="string">
+      Tokens in the external Meteora DAMM pool (POL) - IS circulating
     </ResponseField>
     <ResponseField name="decimals" type="number">
       Token decimal places
@@ -63,12 +91,12 @@ Returns complete supply information for a token.
 <CodeGroup>
 
 ```bash cURL
-curl https://your-api-domain.com/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta
+curl https://market-api.metadao.fi/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta
 ```
 
 ```javascript JavaScript
 const mintAddress = 'METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta';
-const response = await fetch(`https://your-api-domain.com/api/supply/${mintAddress}`);
+const response = await fetch(`https://market-api.metadao.fi/api/supply/${mintAddress}`);
 const data = await response.json();
 console.log(data);
 ```
@@ -77,7 +105,7 @@ console.log(data);
 import requests
 
 mint_address = 'METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta'
-response = requests.get(f'https://your-api-domain.com/api/supply/{mint_address}')
+response = requests.get(f'https://market-api.metadao.fi/api/supply/{mint_address}')
 data = response.json()
 print(data)
 ```
@@ -92,7 +120,10 @@ print(data)
   "data": {
     "mint": "METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta",
     "totalSupply": "1000000.0",
-    "circulatingSupply": "1000000.0",
+    "circulatingSupply": "850000.0",
+    "teamPerformancePackage": "150000.0",
+    "futarchyAmmLiquidity": "200000.0",
+    "meteoraLpLiquidity": "100000.0",
     "decimals": 9,
     "rawTotalSupply": "1000000000000000"
   }
@@ -110,7 +141,7 @@ Returns just the total supply value as a plain string. Useful for integrations t
 ### Example Request
 
 ```bash
-curl https://your-api-domain.com/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta/total
+curl https://market-api.metadao.fi/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta/total
 ```
 
 ### Example Response
@@ -129,22 +160,28 @@ curl https://your-api-domain.com/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n
 
 **Endpoint:** `GET /api/supply/:mintAddress/circulating`
 
-Returns just the circulating supply value as a plain string. Useful for CoinGecko and CoinMarketCap integrations.
+Returns just the circulating supply value as a plain string. This value **excludes** the team performance package but **includes** all liquidity positions.
+
+<Info>
+  **Circulating = Total Supply - Team Performance Package**
+  
+  Both FutarchyAMM liquidity and Meteora LP liquidity are included in circulating supply since these tokens are actively tradeable.
+</Info>
 
 ### Example Request
 
 ```bash
-curl https://your-api-domain.com/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta/circulating
+curl https://market-api.metadao.fi/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n3vYmeta/circulating
 ```
 
 ### Example Response
 
 ```
-1000000.0
+850000.0
 ```
 
 <Note>
-  This endpoint returns a plain text response, not JSON, for easy integration with price aggregators.
+  This endpoint returns a plain text response, not JSON, for easy integration with price aggregators like CoinGecko and CoinMarketCap.
 </Note>
 
 ---
@@ -189,6 +226,9 @@ curl https://your-api-domain.com/api/supply/METAwkXcqyXKy1AtsSgJ8JiUHwGCafnZL38n
 <CardGroup cols={2}>
   <Card title="Tickers API" icon="chart-line" href="/api-reference/tickers">
     Get pricing and volume data for all DAOs
+  </Card>
+  <Card title="Volume Aggregate" icon="chart-bar" href="/api-reference/volume-aggregate">
+    Get aggregate volume with daily breakdown
   </Card>
   <Card title="API Overview" icon="book" href="/api-reference/overview">
     Learn about the API architecture

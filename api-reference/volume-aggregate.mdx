@@ -1,0 +1,173 @@
+---
+title: 'GET /api/volume/aggregate'
+description: 'Retrieve aggregate trading volume with daily breakdown for all DAO tokens'
+api: 'GET /api/volume/aggregate'
+---
+
+## Overview
+
+The volume aggregate endpoint returns comprehensive trading volume data for all DAO tokens since launch, including daily breakdowns for detailed analysis.
+
+<Info>
+  This endpoint aggregates volume data across all DAOs, providing a complete picture of trading activity on the Futarchy protocol.
+</Info>
+
+## Request
+
+```bash
+GET /api/volume/aggregate
+```
+
+### No Parameters Required
+
+This endpoint requires no query parameters. It automatically returns aggregate volume data for all active DAOs.
+
+## Response
+
+<ResponseField name="totalVolume" type="string" required>
+  Total aggregate trading volume across all DAOs since launch (in USD)
+</ResponseField>
+
+<ResponseField name="dailyBreakdown" type="array" required>
+  Array of daily volume records
+  
+  <Expandable title="daily record properties">
+    <ResponseField name="date" type="string">
+      Date in ISO 8601 format (YYYY-MM-DD)
+    </ResponseField>
+    <ResponseField name="volume" type="string">
+      Trading volume for that day (in USD)
+    </ResponseField>
+    <ResponseField name="trades" type="number">
+      Number of trades executed that day
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="tokens" type="array" required>
+  Per-token volume breakdown
+  
+  <Expandable title="token properties">
+    <ResponseField name="mint" type="string">
+      Token mint address
+    </ResponseField>
+    <ResponseField name="symbol" type="string">
+      Token symbol
+    </ResponseField>
+    <ResponseField name="totalVolume" type="string">
+      Total volume for this token since launch
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl https://market-api.metadao.fi/api/volume/aggregate
+```
+
+```javascript JavaScript
+const response = await fetch('https://market-api.metadao.fi/api/volume/aggregate');
+const volumeData = await response.json();
+console.log(volumeData);
+```
+
+```python Python
+import requests
+
+response = requests.get('https://market-api.metadao.fi/api/volume/aggregate')
+volume_data = response.json()
+print(volume_data)
+```
+
+</CodeGroup>
+
+## Example Response
+
+```json
+{
+  "totalVolume": "5234567.89",
+  "dailyBreakdown": [
+    {
+      "date": "2024-01-15",
+      "volume": "125000.00",
+      "trades": 342
+    },
+    {
+      "date": "2024-01-14",
+      "volume": "98500.50",
+      "trades": 287
+    }
+  ],
+  "tokens": [
+    {
+      "mint": "ZKFHiLAfAFMTcDAuCtjNW54VzpERvoe7PBF9mYgmeta",
+      "symbol": "ZKFG",
+      "totalVolume": "1250000.00"
+    },
+    {
+      "mint": "ANOTHER_TOKEN_MINT",
+      "symbol": "ABC",
+      "totalVolume": "875000.00"
+    }
+  ]
+}
+```
+
+## Data Characteristics
+
+<AccordionGroup>
+  <Accordion icon="chart-bar" title="Volume Calculation">
+    Volume is derived from accumulated protocol fees, providing accurate trading activity metrics.
+    
+    **Formula:** `volume = protocolFees / feeRate`
+    
+    Uses the protocol fee rate of 0.25% for calculations.
+  </Accordion>
+  
+  <Accordion icon="calendar" title="Daily Breakdown">
+    Daily volume data is tracked since each DAO's launch date, providing historical trading patterns and trends.
+  </Accordion>
+  
+  <Accordion icon="coins" title="Per-Token Aggregation">
+    Volume is aggregated per token, making it easy to compare trading activity across different DAOs.
+  </Accordion>
+</AccordionGroup>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Analytics Dashboards" icon="chart-mixed">
+    Display historical volume trends and trading patterns
+  </Card>
+  <Card title="Market Research" icon="magnifying-glass-chart">
+    Analyze trading activity across the Futarchy ecosystem
+  </Card>
+  <Card title="Protocol Metrics" icon="gauge">
+    Track overall protocol health and growth
+  </Card>
+  <Card title="Reporting" icon="file-chart-line">
+    Generate volume reports for stakeholders
+  </Card>
+</CardGroup>
+
+## Rate Limiting
+
+This endpoint is subject to the global rate limit of **60 requests per minute** per IP address.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Tickers API" icon="chart-line" href="/api-reference/tickers">
+    Get real-time pricing and volume for all DAOs
+  </Card>
+  <Card title="Supply API" icon="coins" href="/api-reference/supply">
+    Get token supply breakdown information
+  </Card>
+  <Card title="API Overview" icon="book" href="/api-reference/overview">
+    Learn about the API architecture
+  </Card>
+</CardGroup>
+

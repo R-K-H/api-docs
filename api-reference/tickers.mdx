@@ -87,11 +87,11 @@ This endpoint requires no query parameters. It automatically returns all active 
 <CodeGroup>
 
 ```bash cURL
-curl https://your-api-domain.com/api/tickers
+curl https://market-api.metadao.fi/api/tickers
 ```
 
 ```javascript JavaScript
-const response = await fetch('https://your-api-domain.com/api/tickers');
+const response = await fetch('https://market-api.metadao.fi/api/tickers');
 const tickers = await response.json();
 console.log(tickers);
 ```
@@ -99,7 +99,7 @@ console.log(tickers);
 ```python Python
 import requests
 
-response = requests.get('https://your-api-domain.com/api/tickers')
+response = requests.get('https://market-api.metadao.fi/api/tickers')
 tickers = response.json()
 print(tickers)
 ```
@@ -114,7 +114,7 @@ import (
 )
 
 func main() {
-    resp, err := http.Get("https://your-api-domain.com/api/tickers")
+    resp, err := http.Get("https://market-api.metadao.fi/api/tickers")
     if err != nil {
         panic(err)
     }

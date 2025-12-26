@@ -14,10 +14,10 @@ The Futarchy CoinGecko DEX API is a CoinGecko-compatible API that automatically 
 ## Base URL
 
 ```
-https://your-api-domain.com
+https://market-api.metadao.fi
 ```
 
-All API requests should be made to this base URL. Replace `your-api-domain.com` with your actual API domain.
+All API requests should be made to this base URL.
 
 ## Available Endpoints
 
@@ -29,7 +29,10 @@ All API requests should be made to this base URL. Replace `your-api-domain.com` 
     All DAO tickers with pricing and volume
   </Card>
   <Card title="GET /api/supply/:mint" icon="coins" href="/api-reference/supply">
-    Token supply information
+    Token supply breakdown with allocation details
+  </Card>
+  <Card title="GET /api/volume/aggregate" icon="chart-bar" href="/api-reference/volume-aggregate">
+    Aggregate volume with daily breakdown
   </Card>
   <Card title="GET /health" icon="heart" href="/api-reference/overview#health-endpoint">
     Health check endpoint
@@ -40,9 +43,15 @@ All API requests should be made to this base URL. Replace `your-api-domain.com` 
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /api/supply/:mintAddress` | Returns complete supply info (total, circulating, decimals, raw) |
-| `GET /api/supply/:mintAddress/total` | Returns just the total supply |
-| `GET /api/supply/:mintAddress/circulating` | Returns just the circulating supply |
+| `GET /api/supply/:mintAddress` | Returns complete supply breakdown with allocation details |
+| `GET /api/supply/:mintAddress/total` | Returns total supply only |
+| `GET /api/supply/:mintAddress/circulating` | Returns circulating supply (excludes team performance package) |
+
+### Volume Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/volume/aggregate` | Returns aggregate volume with daily breakdown for all DAO tokens since launch |
 
 ## Root Endpoint
 
@@ -58,22 +67,33 @@ Returns API information and available endpoints.
   "version": "1.0.0",
   "documentation": "https://docs.coingecko.com/reference/exchanges-list",
   "endpoints": {
-    "tickers": "/api/tickers - Returns all DAO tickers",
+    "tickers": "/api/tickers - Returns all DAO tickers with pricing and volume",
+    "supply": "/api/supply/:mintAddress - Returns complete supply breakdown with allocation details",
+    "supply_total": "/api/supply/:mintAddress/total - Returns total supply only",
+    "supply_circulating": "/api/supply/:mintAddress/circulating - Returns circulating supply (excludes team performance package)",
+    "volume_aggregate": "/api/volume/aggregate - Returns aggregate volume with daily breakdown for all DAO tokens since launch",
     "health": "/health"
   },
   "dex": {
-    "fork_type": "Custom",
-    "factory_address": "YOUR_FACTORY_PROGRAM_ID",
-    "router_address": "YOUR_ROUTER_PROGRAM_ID"
+    "fork_type": "Uniswap V1",
+    "factory_address": "FUTARELBfJfQ8RDGhg1wdhddq1odMAJUePHFuBYfUxKq",
+    "router_address": "FUTARELBfJfQ8RDGhg1wdhddq1odMAJUePHFuBYfUxKq"
   },
-  "note": "This API automatically discovers and aggregates all DAOs from the Futarchy protocol"
+  "supplyBreakdown": {
+    "description": "For launchpad tokens, supply is broken down into:",
+    "circulatingSupply": "Total supply minus team performance package (liquidity IS circulating)",
+    "teamPerformancePackage": "Locked tokens allocated to the team (price-based unlock) - NOT circulating",
+    "futarchyAmmLiquidity": "Tokens in the internal FutarchyAMM for spot trading - IS circulating",
+    "meteoraLpLiquidity": "Tokens in the external Meteora DAMM pool (POL) - IS circulating"
+  },
+  "note": "This API automatically discovers and aggregates all DAOs from the Futarchy protocol."
 }
 ```
 
 **Example Request:**
 
 ```bash
-curl https://your-api-domain.com/
+curl https://market-api.metadao.fi/
 ```
 
 ## Health Endpoint
@@ -109,7 +129,7 @@ Health check endpoint for monitoring API status.
 **Example Request:**
 
 ```bash
-curl https://your-api-domain.com/health
+curl https://market-api.metadao.fi/health
 ```
 
 <Tip>

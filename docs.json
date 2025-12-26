@@ -63,7 +63,8 @@
           "pages": [
             "api-reference/overview",
             "api-reference/tickers",
-            "api-reference/supply"
+            "api-reference/supply",
+            "api-reference/volume-aggregate"
           ]
         },
         {
